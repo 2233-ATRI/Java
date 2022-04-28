@@ -1,0 +1,31 @@
+interface MyInterface
+
+{
+
+    String s=’MyInterface’;
+
+    public void absM1();
+
+}
+
+interface SubInterface extends MyInterface
+
+{
+
+    public void absM2();
+
+}
+
+public class SubAdapter implements SubInterface
+
+{
+
+    public void absM1(){
+        System.out.println();
+    }
+
+    public void absM2(){
+        System.out.println();
+    }
+
+}
