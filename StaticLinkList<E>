@@ -1,0 +1,133 @@
+/**
+ * 说明：
+ * 1.数组第一个元素的cur为备用链表第一个结点下标，
+ *   数组最后一个元素的cur为第一个有数据的元素的下标，相当于头结点
+ *   最后一个有值元素的 cur为0
+ * 2.插入删除操作时，获取第i-1个元素的 下标时，应注意i-1=0的情况
+ * 3.注释中的“位置”指的是在链表中的位置，“下标”代表数组中的下标，勿搞混
+ * 4.程序关键：获取下标，在数组层面上操作
+ * 5.程序中主要写了插入删除操作，其余基本操作与之前文章类似
+ * 
+ * 问题：
+ * 1.泛型数组的建立
+ * 2.书中P73的if(space[0].cur)和P74的if(j)是属于判断什么？
+ *
+ */
+public class StaticLinkList<E> {
+    private SNode<E>[] nodes;
+    private int maxSize;
+     
+    public StaticLinkList(){
+        this(1000);
+    }
+    public StaticLinkList(int maxSize){
+        this.maxSize=maxSize;
+        nodes=new SNode[this.maxSize];//泛型的数组建立似乎有些问题
+        for(int i=0;i<this.maxSize-1;i++) {
+            nodes[i]=new SNode<E>(null, i+1);
+        }
+        nodes[maxSize-1]=new SNode<E>(null, 0);
+    }
+     
+    class SNode<E> {
+        E data;
+        int cur;
+        public SNode(E data,int cur){
+            this.data=data;
+            this.cur=cur;
+        }
+    }
+     
+    /**
+     * 获取第i个元素的下标
+     */
+    public int getIndex(int i){
+        if(i<1||i>this.getLength())
+            throw new RuntimeException("查找位置错误！");
+        int k=nodes[maxSize-1].cur;
+        for (int j=1;j<i;j++)
+            k=nodes[k].cur;
+        return k;
+    }
+     
+    /**
+     * 获取第i个元素
+     */
+    public SNode<E> getElement(int i){
+        return nodes[getIndex(i)];
+    }
+     
+ 
+     
+    /**
+     * 返回可分配结点下标 
+     */
+    public int malloc_sll() {
+        int i= nodes[0].cur;       
+        nodes[0].cur=nodes[i].cur;//第i个分量要拿来用了，所以指向下一个分量
+        //注意，不是nodes[0].cur=nodes[0].cur+1，下一个分量不一定就是下标加一;         
+        return i;
+    }
+     
+    /**
+     * 插入操作,i代表第i个位置，而不是下标
+     * 注意插入到第一个位置的特殊性
+     */
+    public void listInsert(int i,E e) {
+        if(i<1||i>this.getLength()+1)
+            throw new RuntimeException("插入位置错误！");
+        if(getLength()==maxSize-2)
+            throw new RuntimeException("表已满，无法插入！");
+        int j=this.malloc_sll();
+        nodes[j].data=e;
+        int p; 第i-1个元素的下标
+        if(i==1) {
+            p=maxSize-1;
+        }else {
+            p=getIndex(i-1);
+        }
+        nodes[j].cur=nodes[p].cur;
+        nodes[p].cur=j;
+    }
+     
+    /**
+     * 删除第i个位置的结点
+     */
+    public SNode<E> listDelete(int i) {
+        if(i<1||i>getLength())
+            throw new RuntimeException("删除位置错误！");
+        int m= getIndex(i);
+        int p; //第i-1个元素的下标
+        if(i==1) {
+            p=maxSize-1;
+        }else {
+            p=getIndex(i-1);
+        }
+        nodes[p].cur=nodes[m].cur;
+        free_sll(m);   
+        return nodes[m];
+    }
+     
+    /**
+     * 将下标为i元素回收到备用链表中
+     */
+    public void free_sll(int i) {
+        nodes[i].cur=nodes[0].cur;
+        nodes[0].cur=i;
+    }
+     
+     
+    /**
+     * 返回静态链表的长度
+     */
+    public int getLength() {
+        int length=0;
+        int i=nodes[maxSize-1].cur;
+        while(i!=0) {
+            i=nodes[i].cur;
+            length++;
+        }
+        return length;
+    }
+         
+}
