@@ -1,0 +1,36 @@
+public class StaticLinkListTest {
+    public static void main(String[] args) {   
+        StaticLinkList<Student> students =new StaticLinkList<Student>();
+        System.out.println("——————————插入1到5,并读取内容——————————");
+        Student[] stus= {new Student("小A",11),new Student("小B",12),new Student("小C",13),
+                new Student("小D",14),new Student("小E",151)};
+        for(int i=1;i<=5;i++)
+            students.listInsert(i, stus[i-1]);
+        System.out.println("表长："+students .getLength());
+        Student stu;
+        for(int i=1;i<=5;i++) {
+            stu=students .getElement(i).data;
+            System.out.println("第"+i+"个位置为："+stu.name);
+        }
+        System.out.println("——————————删除小B、小E——————————");
+        stu=students .listDelete(2).data;
+        System.out.println("已删除："+stu.name);
+        stu=students .listDelete(4).data;
+        System.out.println("已删除："+stu.name);
+        System.out.println("当前表长："+students .getLength());
+        for(int i=1;i<=students .getLength();i++) {
+            stu=students .getElement(i).data;
+            System.out.println("第"+i+"个位置为："+stu.name);
+        }
+        System.out.println("表长："+students.getLength());     
+    }
+}
+  
+class Student{
+    public Student(String name, int age) {
+        this.name=name;
+        this.age=age;
+    }
+    String name;
+    int age;
+}
