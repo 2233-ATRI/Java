@@ -1,0 +1,36 @@
+package qi;
+
+public class TestMethodsInCollection {
+    public static void main(String[] args) {
+        java.util.Set<String> set1=new java.util.HashSet<String>();
+        set1.add("london");
+        set1.add("paris");
+        set1.add("new york");
+        set1.add("san Francisco");
+        set1.add("beijing");
+
+        System.out.println("set1 is "+set1);
+        System.out.println(set1.size()+"elements in set1");
+        set1.remove("london");
+        System.out.println("set1 is "+set1);
+        System.out.println(set1.size() + "elements in set1");
+
+
+        java.util.Set<String> set2=new java.util.HashSet<String>();
+        set2.add("London");
+        set2.add("shanghai");
+        set2.add("paris");
+        System.out.println("\nset2 is"+set2);
+        System.out.println(set2.size() + "element in set2");
+
+        System.out.println("\nis taiwan in set2?"+set2.contains("taiwan"));
+        set1.addAll(set2);
+        System.out.println("\nAfter removing set2 to set1,set1 is"+set1);
+        
+        set1.removeAll(set2);
+        System.out.println("After removing set2 form set1 set1 is "+set1);
+
+        set1.retainAll(set2);
+        System.out.println("After retaning common elements in set2 and set1,set2 is "+set1);
+    }
+}
