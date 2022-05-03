@@ -1,0 +1,23 @@
+package qi;
+import java.util.Scanner;
+import java.util.*;
+public class TesthashSet {
+    public static void main(String[] args) {
+        Set<String> set =new HashSet<String>();
+        set.add("London");
+        set.add("Paris");
+        set.add("new york");
+        set.add("san francisco");
+        set.add("beijing");
+        set.add("new york");
+
+        System.out.println(set);
+
+        for(String s: set){
+            System.out.print(s.toUpperCase()+" ");
+
+        }
+        System.out.println();
+        set.forEach(e->System.out.print(e.toLowerCase()+" "));
+    }
+}
