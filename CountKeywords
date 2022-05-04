@@ -1,0 +1,35 @@
+package qi;
+import java.util.*;
+import java.io.*;
+public class CountKeywords {
+    public static void main(String[] args) throws Exception {
+        Scanner input = new Scanner(System.in);
+        System.out.print("Enter a jaava");
+        String filename =input.nextLine();
+
+        File file = new File(filename);
+        if(file.exists()){
+            System.out.println("teh number of keyword in "+filename+" is "+countKeywords(file));
+
+        }else{
+            System.out.println("file "+filename+"does not exist");
+
+        }
+    }
+
+    public static int countKeywords(File file) throws Exception {
+        String[] keywordString={"anidw","ubwdq","nwq"};
+        List<String> keywordSet = new ArrayList<>(Arrays.asList(keywordString));
+        int count =0;
+
+        Scanner input = new Scanner(file);
+
+        while(input.hasNext()){
+            String word =input.next();
+            if(keywordSet.contains(word))
+                count++;
+        }
+        return count;
+
+    }
+}
