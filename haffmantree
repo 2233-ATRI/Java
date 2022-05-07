@@ -1,0 +1,377 @@
+package qi;
+import java.util.*;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+
+public class Huffman {
+
+    public static void main(String[] args) throws IOException {
+
+        launch();
+    }
+
+    static void launch() throws IOException{
+
+
+        //Scanner inputScanner = new Scanner(System.in);后面修改
+        Scanner input=new Scanner(new FileInputStream("hafuman1.txt"));//new do 5.7.16.48
+        //将读取到的字符串转变为一个字符数组的形式，以便取出每一个字符出现的频度
+        char[] chars = input.nextLine().toCharArray();
+
+        //使用键值对的形式保存每一个字符以及它们出现的频度
+        Map< Character, Integer> mapData = new LinkedHashMap<Character, Integer>();
+
+        //将字符即字符出现的频度保存到键值对容器中
+        for (char c : chars) {
+
+            //如果容器中不存在当前字符，则将其频度设置为1
+            if (!mapData.containsKey(c)) {
+
+                mapData.put(c, 1);
+            }
+
+            //如果容器中存在当前字符，则将其频度加1
+            else {
+
+                mapData.put(c, mapData.get(c) + 1);
+            }
+
+        }
+
+        //由于map无法直接取键值，使用Link容器来保存字符和它们出现的频度
+        List<Character> keyList = new ArrayList<Character>();
+        for (Character key: mapData.keySet()) {
+
+            keyList.add(key);
+        }
+
+        //保存值
+        List<Integer> valueList = new ArrayList<Integer>();
+        for (int value : mapData.values()) {
+
+            valueList.add(value);
+        }
+
+        //叶子节点的数量等于需要编码的字符的数量
+        int leafNodeNumber = mapData.size();
+
+        //总的节点的数量等与2倍叶子节点的数量减1
+        int totalNodeNumber = 2 * leafNodeNumber - 1;
+
+        //进行哈夫曼树的初始化操作
+        TreeNode[] treeNodes = new TreeNode[totalNodeNumber];
+        for (int i = 0; i < totalNodeNumber; i++) {
+
+            treeNodes[i] = new TreeNode(0, -1, -1, -1);
+
+        }
+
+        //创建并初始化所有需要编码的叶子节点
+        CodeNode[] codeNodes = new CodeNode[leafNodeNumber];
+        for (int i = 0; i < leafNodeNumber; i++) {
+
+            treeNodes[i].setWeight(valueList.get(i));
+            codeNodes[i] = new CodeNode(keyList.get(i).toString(), "");
+
+        }
+
+        /* 开始创建哈夫曼树 */
+        createHuffmanTree(treeNodes, leafNodeNumber);
+
+        /* 在创建完哈夫曼树之后进行编码操作 */
+        codeHuffmanTree(treeNodes, codeNodes,leafNodeNumber);
+
+        /* 进行结果的输出 */
+        outputCodeResult(codeNodes,treeNodes, leafNodeNumber,chars, keyList,valueList);
+
+    }
+
+    /* 从当前的节点中选取两个权值最低的节点的下标位置进行返回,这些节点都是没有父节点的节点 */
+    static int[] selectTwoMinCode(TreeNode[] treeNodes, int nodeNumber) {
+
+        //创建数组保存这两个最小权值对应的节点的下标
+        int[] twoMin = new int[2];
+
+        //创建一个节点数组来保存没有父节点的节点，然后我们再在其中进行遍历
+        TempNode[] tempNodes = new TempNode[nodeNumber];
+
+        //第一步求出没有父节点的节点的数量，然后将它们初始化为临时节点对象
+        int remindNodesNumber = 0;
+        for (int i = 0; i < nodeNumber; i++) {
+
+            if (treeNodes[i].getParent() == -1 && treeNodes[i].getWeight() != 0) {
+
+                tempNodes[remindNodesNumber] = new TempNode(treeNodes[i].getWeight(), i);
+                remindNodesNumber++;
+            }
+        }
+
+        //开始时我们可以默认第一个没有父节点的节点的权值最小
+        int min1 = 0,min2 = 0;
+
+        //取得第一个最小值
+        for (int i = 0; i < remindNodesNumber; i++) {
+
+            if (tempNodes[i].getWeight() < tempNodes[min1].getWeight()) {
+
+                min1 = i;
+            }
+
+        }
+
+
+        for (int i = 0; i < remindNodesNumber; i++) {
+
+            //如果min2等于min1,则将min2其后移一位，相当于是从去掉min1的剩余数据中选取一个最小值
+            if (min1 == min2) {
+                min2++;
+            }
+
+            if (tempNodes[i].getWeight() <= tempNodes[min2].getWeight() && i != min1) {
+
+                min2 = i;
+            }
+        }
+
+        //得到两个权值最小节点的真实下标并进行返回
+        twoMin[0] = tempNodes[min1].getNodePosition();
+        twoMin[1] = tempNodes[min2].getNodePosition();
+
+        return twoMin;
+
+    }
+
+    /* 创建哈夫曼树 */
+    static void createHuffmanTree(TreeNode[] treeNodes, int leafNodeNumber) {
+
+        if (leafNodeNumber <= 1) {
+
+            System.out.print("No need to code");
+            System.exit(-1);
+        }
+
+        //总的节点的数量
+        int totalNodeNumber = 2 * leafNodeNumber - 1;
+
+
+        //叶子节点与所有节点之间的差值节点在这里生成
+        for (int i = leafNodeNumber; i < totalNodeNumber; i++) {
+
+            //首先在当前的节点中选取权值最小的两个节点
+            int[] twoMin = selectTwoMinCode(treeNodes, i);
+
+            int min1 = twoMin[0];
+            int min2 = twoMin[1];
+
+            //设置两个最小权值节点的父节点
+            treeNodes[min1].setParent(i);
+            treeNodes[min2].setParent(i);
+
+            //设置该父节点的左孩子和右孩子
+            treeNodes[i].setLeftChild(min1);
+            treeNodes[i].setRightChild(min2);
+
+            //当前节点的权值是两个孩子节点的权值之和
+            treeNodes[i].setWeight(treeNodes[min1].getWeight() + treeNodes[min2].getWeight());
+        }
+    }
+
+    /* 进行哈夫曼树的编码，从叶子节点到根节点进行编码 */
+    static void codeHuffmanTree(TreeNode[] treeNodes, CodeNode[] nodeCodes, int leafNodeNumber) {
+
+        //使用一个字符数组保存字符编码后的结果
+        char[] code = new char[100];
+
+        //使用c来表示点当前节点的下标
+        int c;
+
+        int parent;
+
+        //start记录编码的位数，以及作为编码时编码数组的下标
+        int start;
+
+        //进行编码操作
+        for (int i = 0; i < leafNodeNumber; i++) {
+
+            StringBuffer stringBuffer = new StringBuffer();
+
+
+            //当有n个节点进行编码时，哈夫曼树的编码的数量不会超过 n - 1个
+            start = leafNodeNumber - 1;
+
+            //使用c表示当前节点
+            c = i;
+
+            //当当前节点存在父节点时，如果当前节点是左孩子则编码为0，如果是右孩子则编码为1
+            while( (parent = treeNodes[c].getParent()) >= 0){
+
+                start--;
+                code[start]=((treeNodes[parent].getLeftChild()== c)?'0':'1');
+                c = parent;
+            }
+
+            for(;start < leafNodeNumber - 1; start++){
+
+                stringBuffer.append(code[start]);
+
+            }
+            nodeCodes[i].setCode(stringBuffer.toString());
+
+        }
+
+    }
+
+
+    static void outputCodeResult(CodeNode[] nodeCodes,TreeNode[] treeNodes, int leafCodeNumber,char[] chars, List listMapKey, List listMapValue) {
+
+        Map<String,String> codeMapData = new LinkedHashMap<String, String>();
+
+        for(int i = 0;i < leafCodeNumber;i++){
+
+            codeMapData.put(nodeCodes[i].getCharacter(),nodeCodes[i].getCode());
+
+        }
+
+
+        System.out.println("\n编码结果如下所示：");
+        System.out.println("data\tocc\ttotal\tprobablity\tcode");
+
+        for (int i = 0; i < leafCodeNumber; i++) {
+
+            System.out.print(listMapKey.get(i) + "\t");
+            System.out.print(listMapValue.get(i)+ "\t");
+            System.out.print(chars.length+ "\t");
+            double possibility = (Integer.parseInt(listMapValue.get(i).toString())*1.0 /chars.length) * 100;
+            System.out.printf("%.3f%%\t\t",possibility);
+            System.out.print(codeMapData.get(listMapKey.get(i) + ""));
+
+            System.out.println();
+        }
+
+
+        System.out.println();
+
+
+
+        System.out.print("编码后的数据是：");
+        String temp = "";
+
+
+        for (char c : chars) {
+
+            temp += codeMapData.get(c + "");
+            System.out.print(codeMapData.get(c + ""));
+        }
+
+
+        System.out.println("\n原字符串的长度是" + chars.length + "位," + "占用空间为" + chars.length + "个字节" );
+
+        System.out.println("编码后的长度是" + temp.length() + "占用空间为" + (int)Math.ceil(temp.length() / 8.0)+ "个字节");
+
+        double compressibility = 100 * ((Math.ceil(temp.length() / 8.0)) /chars.length);
+
+        System.out.printf("压缩率为%.3f%%\n",compressibility);
+
+        System.out.println("-------进行解码操作----------，根据码表以及编码后的结果进行解码");
+
+        System.out.print("解码的对应结果是：\n");
+
+
+        char[] codeChar = temp.toCharArray();
+
+        int codeIndex = 0;
+
+        String character = "";
+
+        StringBuffer decodeBuffer = new StringBuffer();
+
+        while (codeIndex < codeChar.length){
+
+            //临时记录下编码
+            StringBuffer stringBuffer = new StringBuffer();
+
+            //构建成功的哈夫曼树的根节点
+            TreeNode treeNode = treeNodes[2 * leafCodeNumber - 2];
+
+            //当前节点若有子孩子，则说明它不是叶子节点
+            while (treeNode.getLeftChild() != -1 && treeNode.getRightChild() != -1) {
+
+                //当为0时探索左孩子
+                if (codeChar[codeIndex] == '0') {
+
+                    treeNode = treeNodes[treeNode.getLeftChild()];
+                    stringBuffer.append("0");
+                }
+
+                //当为1时探索右孩子
+                else if (codeChar[codeIndex] == '1')
+
+                {
+
+                    treeNode = treeNodes[treeNode.getRightChild()];
+                    stringBuffer.append("1");
+                }
+
+                codeIndex++;
+
+            }
+
+
+            for (String key : codeMapData.keySet()) {
+
+                if (codeMapData.get(key).equals(stringBuffer.toString())) {
+
+                    character = key;
+                    decodeBuffer.append(key);
+                    break;
+
+                }
+            }
+
+
+            System.out.println(stringBuffer + "--->" + character);
+
+
+
+        }
+
+        System.out.println("最终解码的结果是：" +  decodeBuffer);
+
+       /*
+       String tempCode = "";
+       String decodeString = "";
+
+       for (int i = 0; i < codeChar.length; i++) {
+
+    	   tempCode += codeChar[i];
+
+    	   if (codeMapData.values().contains(tempCode)) {
+
+
+    		   for (String key : codeMapData.keySet()) {
+
+
+    			   if (codeMapData.get(key).equals(tempCode)) {
+    				   System.out.println(codeMapData.get(key) + "--->" + key);
+    				   decodeString += key;
+    				   tempCode = "";
+
+    			   }
+
+    		   }
+
+
+    	   }
+
+       }
+       */
+        // System.out.println("最终解码的结果是：" +  decodeString);
+
+    }
+
+}
+
