@@ -1,0 +1,43 @@
+package qi;
+
+import java.util.Collection;
+import java.util.Map;
+
+public interface HuffmanTreeinterface<E> extends Map {
+    public void createHuffmanTree(TreeNode[] treeNodes,int leafNodeNumber );
+    //创建哈夫曼树
+    public void createnode();
+
+    //创建哈夫曼树节点
+    public  void Preordertraversal(TreeNode root);
+    public void preordertraversal(TreeNode root);//哈夫曼树实现前序遍历
+
+    public void InOrder(TreeNode root);
+    public void InOrderNor(TreeNode root);
+    //实现哈夫曼树的中序遍历
+
+    public void PostOrder(TreeNode root);
+    public void PostOrderNor(TreeNode root);
+    //实现哈夫曼树的后续遍历
+
+    public void LevelOrderNor(TreeNode root);
+    //遍历循环
+
+    public void DetroyBinTree(TreeNode[] treeNodes);
+    //销毁
+    public int BinTreeSize(int leafNodeNumber);
+    //统计节点数量
+    public void BinTreeLeafNode(TreeNode root);
+    //叶子节点数量
+    public int BinTreeHeight(TreeNode root);
+    //哈夫曼树高度
+    public TreeNode Find(TreeNode root,char data);
+    //寻找值为data的节点
+    public int IsNodeInBinTree(TreeNode rightchild,TreeNode wightchild);
+    //查找节点是否存在哈夫曼树当中
+    public int IsCompLeteBinTree(TreeNode root);
+
+
+
+
+}
