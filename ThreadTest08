@@ -1,0 +1,23 @@
+public class ThreadTest04 {
+    public static void main(String[] args) {
+        Thread t = new Thread(new MyRunnable2());
+        t.setName("t");
+        t.start();
+
+        // 希望5秒之后，t线程醒来（5秒之后主线程手里的活儿干完了。）
+        try {
+            Thread.sleep(1000 * 5);
+            t.interrupt();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // 终断t线程的睡眠（这种终断睡眠的方式依靠了java的异常处理机制。）
+
+    }
+}
+
+class MyRunnable2 implements Runnable {
+    @Override
+    public void run() {
+    }
+}
